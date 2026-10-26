@@ -1,10 +1,10 @@
 {
-  "name": "pelican-mcp",
+  "name": "pelican-panel-mcp",
   "version": "2.0.0",
   "description": "MCP server for Pelican Panel \u2014 full client & application API coverage: everything the panel UI can do",
   "main": "dist/index.js",
   "bin": {
-    "pelican-mcp": "dist/index.js"
+    "pelican-panel-mcp": "dist/index.js"
   },
   "type": "module",
   "files": [
@@ -48,5 +48,8 @@
     "@modelcontextprotocol/sdk": "^1.32.2",
     "ws": "^8.20.0",
     "zod": "^4.3.6"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

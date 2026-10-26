@@ -19,14 +19,14 @@ function main() {
     config = loadConfig();
   } catch (err) {
     if (err instanceof ConfigError) {
-      console.error(`pelican-mcp: ${err.message}`);
+      console.error(`pelican-panel-mcp: ${err.message}`);
       process.exit(1);
     }
     throw err;
   }
 
   const api = new PelicanApi(config);
-  const server = new McpServer({ name: "pelican-mcp", version: pkg.version }, { instructions: INSTRUCTIONS });
+  const server = new McpServer({ name: "pelican-panel-mcp", version: pkg.version }, { instructions: INSTRUCTIONS });
 
   const toolsets = process.env["PELICAN_TOOLSETS"]
     ?.split(",")
@@ -34,7 +34,7 @@ function main() {
     .filter(Boolean);
   const known = new Set(groups.map((g) => g.name));
   for (const name of toolsets ?? []) {
-    if (!known.has(name)) console.error(`pelican-mcp: unknown toolset "${name}" (known: ${[...known].join(", ")})`);
+    if (!known.has(name)) console.error(`pelican-panel-mcp: unknown toolset "${name}" (known: ${[...known].join(", ")})`);
   }
 
   const registered = registerGroups(server, { api, config }, groups, { toolsets });
@@ -42,7 +42,7 @@ function main() {
 
   return server.connect(new StdioServerTransport()).then(() => {
     console.error(
-      `pelican-mcp ${pkg.version} connected to ${config.url} (${apis} API${config.readOnly ? ", read-only" : ""}) with ${registered.length} tools`,
+      `pelican-panel-mcp ${pkg.version} connected to ${config.url} (${apis} API${config.readOnly ? ", read-only" : ""}) with ${registered.length} tools`,
     );
   });
 }

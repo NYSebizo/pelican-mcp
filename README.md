@@ -1,4 +1,4 @@
-# pelican-mcp
+# pelican-panel-mcp
 
 An [MCP](https://modelcontextprotocol.io) server for [Pelican Panel](https://pelican.dev) that covers **everything you can do in the panel UI** — for users *and* admins — through natural language.
 
@@ -7,6 +7,8 @@ An [MCP](https://modelcontextprotocol.io) server for [Pelican Panel](https://pel
 - **Safe by design**: every tool carries MCP annotations (read-only / destructive / idempotent), `PELICAN_READ_ONLY=true` hides everything that changes state, and API errors (incl. per-field validation errors) come back as readable messages instead of crashing the tool call.
 - **Partial updates**: `update_*` tools fetch the current state and only change the fields you pass — no need to resend the whole object like the raw API requires.
 - **Only what you can use**: client tools appear when a client key is set, `admin_*` tools when an application key is set. `PELICAN_TOOLSETS` narrows it down further.
+
+[![npm](https://img.shields.io/npm/v/pelican-panel-mcp)](https://www.npmjs.com/package/pelican-panel-mcp)
 
 ## Setup
 
@@ -24,7 +26,7 @@ You need a Pelican Panel and at least one API key:
   "mcpServers": {
     "pelican": {
       "command": "npx",
-      "args": ["-y", "pelican-mcp"],
+      "args": ["-y", "pelican-panel-mcp"],
       "env": {
         "PELICAN_URL": "https://panel.example.com",
         "PELICAN_CLIENT_API_KEY": "pacc_...",
@@ -38,7 +40,7 @@ You need a Pelican Panel and at least one API key:
 Claude Code one-liner:
 
 ```bash
-claude mcp add pelican -e PELICAN_URL=https://panel.example.com -e PELICAN_CLIENT_API_KEY=pacc_... -e PELICAN_APPLICATION_API_KEY=papp_... -- npx -y pelican-mcp
+claude mcp add pelican -e PELICAN_URL=https://panel.example.com -e PELICAN_CLIENT_API_KEY=pacc_... -e PELICAN_APPLICATION_API_KEY=papp_... -- npx -y pelican-panel-mcp
 ```
 
 ### From source (requires [Bun](https://bun.sh))
