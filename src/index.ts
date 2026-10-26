@@ -1,33 +1,50 @@
+#!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { PelicanClient } from "./client.ts";
-import { registerServerTools } from "./tools/servers.ts";
-import { registerFileTools } from "./tools/files.ts";
-import { registerBackupTools } from "./tools/backups.ts";
-import { registerConsoleTools } from "./tools/console.ts";
-import { registerAdminTools } from "./tools/admin.ts";
-import { registerDatabaseTools } from "./tools/databases.ts";
-import { registerPluginTools } from "./tools/plugins.ts";
+import pkg from "../package.json" with { type: "json" };
+import { PelicanApi } from "./api.ts";
+import { ConfigError, loadConfig } from "./config.ts";
+import { registerGroups } from "./tool.ts";
+import { groups } from "./tools/index.ts";
 
-const url = process.env["PELICAN_URL"];
-const key = process.env["PELICAN_API_KEY"];
+const INSTRUCTIONS = `Tools for managing a Pelican game server panel.
+- Tools without the admin_ prefix use the client API and identify servers by their short identifier (e.g. 'a1b2c3d4') or UUID; get them from list_servers.
+- admin_* tools use the application API and identify servers, users, nodes etc. by numeric ID; get them from the admin_list_* tools.
+- Prefer run_command over send_command when you need to see the result of a console command.
+- Destructive tools (delete, kill, reinstall, restore) cannot be undone: confirm with the user first and suggest a backup where it makes sense.`;
 
-if (!url || !key) {
-  console.error("Error: PELICAN_URL and PELICAN_API_KEY environment variables must be set.");
-  process.exit(1);
+function main() {
+  let config;
+  try {
+    config = loadConfig();
+  } catch (err) {
+    if (err instanceof ConfigError) {
+      console.error(`pelican-mcp: ${err.message}`);
+      process.exit(1);
+    }
+    throw err;
+  }
+
+  const api = new PelicanApi(config);
+  const server = new McpServer({ name: "pelican-mcp", version: pkg.version }, { instructions: INSTRUCTIONS });
+
+  const toolsets = process.env["PELICAN_TOOLSETS"]
+    ?.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const known = new Set(groups.map((g) => g.name));
+  for (const name of toolsets ?? []) {
+    if (!known.has(name)) console.error(`pelican-mcp: unknown toolset "${name}" (known: ${[...known].join(", ")})`);
+  }
+
+  const registered = registerGroups(server, { api, config }, groups, { toolsets });
+  const apis = [config.clientKey && "client", config.applicationKey && "application"].filter(Boolean).join(" + ");
+
+  return server.connect(new StdioServerTransport()).then(() => {
+    console.error(
+      `pelican-mcp ${pkg.version} connected to ${config.url} (${apis} API${config.readOnly ? ", read-only" : ""}) with ${registered.length} tools`,
+    );
+  });
 }
 
-const client = new PelicanClient(url, key);
-const server = new McpServer({ name: "pelican-mcp", version: "1.0.0" });
-
-registerServerTools(server, client);
-registerFileTools(server, client);
-registerBackupTools(server, client);
-registerConsoleTools(server, client);
-registerAdminTools(server, client);
-registerDatabaseTools(server, client);
-registerPluginTools(server, client);
-
-const transport = new StdioServerTransport();
-await server.connect(transport);
-console.error("Pelican MCP server running on stdio");
+await main();

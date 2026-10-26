@@ -1,8 +1,7 @@
 {
   "name": "pelican-mcp",
-  "version": "1.0.2",
-  "description": "MCP server for managing Pelican Panel game servers",
-  "module": "index.ts",
+  "version": "2.0.0",
+  "description": "MCP server for Pelican Panel \u2014 full client & application API coverage: everything the panel UI can do",
   "main": "dist/index.js",
   "bin": {
     "pelican-mcp": "dist/index.js"
@@ -13,36 +12,41 @@
   ],
   "scripts": {
     "start": "bun run src/index.ts",
-    "build": "bun build src/index.ts --target=node --outfile=dist/index.js && node -e \"const fs=require('fs');const f='dist/index.js';fs.writeFileSync(f,'#!/usr/bin/env node\\n'+fs.readFileSync(f,'utf8'))\"",
-    "prepublishOnly": "bun run build"
+    "build": "bun build src/index.ts --target=node --outfile=dist/index.js --external bufferutil --external utf-8-validate",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "prepublishOnly": "bun run typecheck && bun run build"
   },
   "keywords": [
     "mcp",
+    "model-context-protocol",
     "pelican",
-    "game-server",
+    "pelican-panel",
     "pterodactyl",
+    "wings",
+    "game-server",
     "claude"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AJXD2/pelican-mcp.git"
+    "url": "https://github.com/NYSebizo/pelican-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/AJXD2/pelican-mcp/issues"
+    "url": "https://github.com/NYSebizo/pelican-mcp/issues"
   },
-  "homepage": "https://github.com/AJXD2/pelican-mcp#readme",
+  "homepage": "https://github.com/NYSebizo/pelican-mcp#readme",
   "engines": {
     "node": ">=18"
   },
   "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
+    "@types/bun": "^1.4.4",
+    "@types/ws": "^8.18.2",
     "typescript": "^5"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.27.1",
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "ws": "^8.20.0",
     "zod": "^4.3.6"
   }
 }

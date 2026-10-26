@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    name: Type check & build
+    name: Type check, test & build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,10 +18,17 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Type check
-        run: bunx tsc --noEmit
+        run: bun run typecheck
+
+      - name: Test
+        run: bun test
 
       - name: Build
         run: bun run build
+
+      - name: Smoke test bundle on Node
+        run: |
+          PELICAN_URL=http://localhost PELICAN_API_KEY=pacc_x node dist/index.js < /dev/null
